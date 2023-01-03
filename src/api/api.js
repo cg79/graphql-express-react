@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { memoryStorage } from "../localStorage/memoryStorage";
 import { useApolloClient } from "@apollo/client";
 
-//export declare function useQuery<TData = any, TVariables = OperationVariables>(query: DocumentNode | TypedDocumentNode<TData, TVariables>, options?: QueryHookOptions<TData, TVariables>): QueryResult<TData, TVariables>;
 
 const isPromise = (p) => {
   if (typeof p === "object" && typeof p.then === "function") {
@@ -24,10 +23,12 @@ const useExecuteQuery = (name, query, variables) => {
     request.variables = variables;
   }
 
+  const key = name+ JSON.stringify(variables || '');
+
   const client = useApolloClient();
 
   useEffect(() => {
-    const memoryInfo = memoryStorage.get(name);
+    const memoryInfo = memoryStorage.get(key);
     if (memoryInfo) {
       if (!isPromise(memoryInfo)) {
         setData(memoryInfo);
@@ -46,7 +47,7 @@ const useExecuteQuery = (name, query, variables) => {
       "Content-Type": "application/json",
       Authorization: "JWT fefege...",
     });
-    memoryStorage.set(name, promise);
+    memoryStorage.set(key, promise);
 
     promise
       .then((response) => {
@@ -59,10 +60,9 @@ const useExecuteQuery = (name, query, variables) => {
           loading: false,
           error: null,
         };
-        memoryStorage.set(name, apiResponse);
+        memoryStorage.set(key, apiResponse);
       })
       .catch((error) => {
-        // debugger;
         console.log(error);
         setError(error);
       });
@@ -72,4 +72,3 @@ const useExecuteQuery = (name, query, variables) => {
 };
 
 export { useExecuteQuery };
-// export default useExecuteQuery;
